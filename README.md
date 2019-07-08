@@ -1,6 +1,6 @@
 # Bash-FillWithZeros
 
-Simple tool for filling disks with zero for compression.
+Simple tool for filling disks with zeros.
 
 *Note: I use this script for my own projects, it contains only the features I need.*
 
@@ -18,7 +18,7 @@ Requires: a Debian/Ubuntu version of linux and a Bash version ~4.4. [bash-sys](h
 
 ## Features
 
-This tool fills disks with zero. Usefull for disk compression.
+This tool fills all the disks with zeros then shutdown the system. Usefull for disk compression (virtualization).
 
 ```bash
 Usage: fillwithzeros.sh [options]
