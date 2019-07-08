@@ -1,10 +1,10 @@
 #!/bin/bash
 ## -----------------------------------------------------------------------------
 ## Linux Scripts.
-## Start, stop or disable a list of services.
+## Fills disks with zero for compression.
 ##
-## @package ojullien\bash\bin\manageservices
-## @license MIT <https://github.com/ojullien/bash-manageservices/blob/master/LICENSE>
+## @package ojullien\bash\bin
+## @license MIT <https://github.com/ojullien/bash-fillwithzeros/blob/master/LICENSE>
 ## -----------------------------------------------------------------------------
 #set -o errexit
 set -o nounset
@@ -36,14 +36,26 @@ readonly m_DIR_REALPATH="$(realpath "$(dirname "$0")")"
 . "${m_DIR_SYS}/config.sh"
 # shellcheck source=/dev/null
 . "${m_DIR_SYS}/service.sh"
-Config::load "manageservices"
 # shellcheck source=/dev/null
-. "${m_DIR_APP}/manageservices/app.sh"
+. "${m_DIR_APP}/clean/app.sh"
+Config::load "manageservices"
+Config::load "clean"
+Config::load "fillwithzeros"
+# shellcheck source=/dev/null
+. "${m_DIR_APP}/fillwithzeros/app.sh"
 
 ## -----------------------------------------------------------------------------
 ## Help
 ## -----------------------------------------------------------------------------
-((m_OPTION_SHOWHELP)) && ManageServices::showHelp && exit 0
+((m_OPTION_SHOWHELP)) && Option::showHelp && exit 0
+
+## -----------------------------------------------------------------------------
+## Trace
+## -----------------------------------------------------------------------------
+Constant::trace
+ManageServices::trace
+Clean::trace
+FillWithZeros::trace
 
 ## -----------------------------------------------------------------------------
 ## Start
@@ -54,51 +66,35 @@ String::notice "The PID for $(basename "$0") process is: $$"
 Console::waitUser
 
 ## -----------------------------------------------------------------------------
-## Parse the app options and arguments
+## Disable & stop services
 ## -----------------------------------------------------------------------------
-declare -i iReturn=1
+String::separateLine
+Service::disableServices ${m_SERVICES_DISABLE}
+String::separateLine
+Service::stopServices ${m_SERVICES_STOP}
+Console::waitUser
 
-if (( "$#" )); then
-    case "$1" in
-    stop)
-        String::separateLine
-        Service::stopServices ${m_SERVICES_STOP}
-        iReturn=$?
-        ;;
-    start)
-        String::separateLine
-        Service::startServices ${m_SERVICES_START}
-        iReturn=$?
-        ;;
-    disable)
-        String::separateLine
-        Service::disableServices ${m_SERVICES_DISABLE}
-        iReturn=$?
-        ;;
-    -t|--trace)
-        shift
-        String::separateLine
-        Constant::trace
-        ManageServices::trace
-        ;;
-    --*|-*) # unknown option
-        shift
-        String::separateLine
-        SaveSite::showHelp
-        exit 0
-        ;;
-    *) # unknown option
-        String::separateLine
-        ManageServices::showHelp
-        ;;
-    esac
-else
-        String::separateLine
-        ManageServices::showHelp
-fi
+## -----------------------------------------------------------------------------
+## Clean logs
+## -----------------------------------------------------------------------------
+String::separateLine
+Clean::main
+Console::waitUser
+
+## -----------------------------------------------------------------------------
+## Fill
+## -----------------------------------------------------------------------------
+
+declare sMount=""
+
+for sMount in "${m_MOUNTPOINTS[@]}"; do
+    [[ -n ${sMount} ]] && FillWithZeros::fill "${sMount}"
+done
 
 ## -----------------------------------------------------------------------------
 ## END
 ## -----------------------------------------------------------------------------
 String::notice "Now is: $(date -R)"
-exit ${iReturn}
+String::notice "Ready to shutdown!"
+Console::waitUser
+Service::shutdownSystem
