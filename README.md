@@ -10,7 +10,7 @@ Simple tool for filling disks with zeros.
 
 ## Installation
 
-Requires: a Debian/Ubuntu version of linux and a Bash version ~4.4. [bash-sys](https://github.com/ojullien/bash-sys), [bash-manageservices](https://github.com/ojullien/bash-fillwithzeros) and [bash-clean](https://github.com/ojullien/bash-clean) are installed.
+Requires: a Debian/Ubuntu version of linux and a Bash version ~4.4. [bash-sys](https://github.com/ojullien/bash-sys), [bash-manageservices](https://github.com/ojullien/bash-manageservices) and [bash-clean](https://github.com/ojullien/bash-clean) are installed.
 
 1. [Download a release](https://github.com/ojullien/bash-fillwithzeros/releases) or clone this repository.
 2. Use [scripts/install.sh](scripts/install.sh) to automatically install the application in the /opt/oju/bash project folder.
